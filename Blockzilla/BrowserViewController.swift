@@ -827,7 +827,7 @@ extension BrowserViewController: URLBarDelegate {
                     if let word = urlBar.userInputText {
                         self.overlayView.setSearchQuery(queryArray: [word], animated: true, hideFindInPage: isOnHomeView)
                     } else {
-                        self.overlayView.setSearchQuery(queryArray: [], animated: true, hideFindInPage: true)
+                        self.overlayView.setSearchQuery(queryArray: [""], animated: true, hideFindInPage: true)
                     }
                     return
                 }
