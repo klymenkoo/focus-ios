@@ -17,6 +17,11 @@ class SearchSuggestClient {
     }
     
     func getSuggestions(_ query: String, callback: @escaping (_ response: [String]?, _ error: NSError?) -> Void) {
+        if AppInfo.isTesting() {
+            callback(["g", "gmail", "google", "google maps"], nil)
+            return
+        }
+        
         guard let url = engine.urlForSuggestions(query) else {
             let error = NSError(domain: SearchSuggestClientErrorDomain, code: SearchSuggestClientErrorInvalidEngine, userInfo: nil)
             callback(nil, error)
@@ -49,6 +54,6 @@ class SearchSuggestClient {
                 callback(nil, error)
                 return
             }
-            }.resume()
+        }.resume()
     }
 }
