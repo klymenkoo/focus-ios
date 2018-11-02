@@ -821,24 +821,20 @@ extension BrowserViewController: URLBarDelegate {
     func urlBar(_ urlBar: URLBar, didEnterText text: String) {
         // Hide find in page if the home view is displayed
         let isOnHomeView = homeView != nil
-        if Settings.getToggle(.enableSearchSuggestions) && text != "" {
+        if Settings.getToggle(.enableSearchSuggestions) && !text.isEmpty {
             searchSuggestClient.getSuggestions(text, callback: { suggestions, error in
-                guard let suggestions = suggestions else {
-                    if let word = urlBar.userInputText {
-                        self.overlayView.setSearchQuery(queryArray: [word], animated: true, hideFindInPage: isOnHomeView)
-                    } else {
-                        self.overlayView.setSearchQuery(queryArray: [""], animated: true, hideFindInPage: true)
-                    }
+                let userInputText = urlBar.userInputText ?? ""
+                if userInputText.isEmpty || userInputText != text {
                     return
                 }
                 
-                if suggestions[0] == urlBar.userInputText {
-                    self.overlayView.setSearchQuery(queryArray: suggestions, animated: true, hideFindInPage: isOnHomeView)
+                if userInputText == text {
+                    let suggestions = suggestions ?? [text]
+                    self.overlayView.setSearchQuery(queryArray: suggestions, animated: true, hideFindInPage: isOnHomeView || text.isEmpty)
                 }
-                return
             })
         } else {
-            overlayView.setSearchQuery(queryArray: [text], animated: true, hideFindInPage: isOnHomeView && text != "")
+            overlayView.setSearchQuery(queryArray: [text], animated: true, hideFindInPage: isOnHomeView || text.isEmpty)
         }
     }
 
