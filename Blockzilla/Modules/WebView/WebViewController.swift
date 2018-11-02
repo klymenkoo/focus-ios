@@ -162,12 +162,7 @@ class WebViewController: UIViewController, WebController {
             blockLists.forEach(self.browserView.configuration.userContentController.add)
         }
     }
-
-    fileprivate func updateBackForwardState(webView: WKWebView) {
-        delegate?.webController(self, didUpdateCanGoBack: canGoBack)
-        delegate?.webController(self, didUpdateCanGoForward: canGoForward)
-    }
-
+    
     private func setupBlockLists() {
         ContentBlockerHelper.shared.getBlockLists { lists in
             self.reloadBlockers(lists)
@@ -261,8 +256,6 @@ extension WebViewController: WKNavigationDelegate {
     func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
         delegate?.webControllerDidStartNavigation(self)
         if case .on = trackingProtectionStatus { trackingInformation = TPPageStats() }
-
-        updateBackForwardState(webView: webView)
     }
 
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
