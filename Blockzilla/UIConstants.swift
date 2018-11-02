@@ -433,3 +433,9 @@ struct UIConstants {
         static let encodingNameUTF8 = "utf-8"
     }
 }
+
+public enum KVOConstants: String {
+    case URL = "URL"
+    case canGoBack = "canGoBack"
+    case canGoForward = "canGoForward"
+}
