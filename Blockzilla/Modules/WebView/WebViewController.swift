@@ -27,7 +27,7 @@ protocol WebControllerDelegate: class {
     func webControllerDidStartProvisionalNavigation(_ controller: WebController)
     func webControllerDidStartNavigation(_ controller: WebController)
     func webControllerDidFinishNavigation(_ controller: WebController)
-    func webControllerURLDidChange(_ controller: WebController, url: URL)
+    func webControllerURLDidChange(_ controller: WebController)
     func webController(_ controller: WebController, didFailNavigationWithError error: Error)
     func webController(_ controller: WebController, didUpdateCanGoBack canGoBack: Bool)
     func webController(_ controller: WebController, didUpdateCanGoForward canGoForward: Bool)
@@ -39,6 +39,7 @@ protocol WebControllerDelegate: class {
     func webControllerShouldScrollToTop(_ controller: WebController) -> Bool
     func webController(_ controller: WebController, didUpdateTrackingProtectionStatus trackingStatus: TrackingProtectionStatus)
     func webController(_ controller: WebController, didUpdateFindInPageResults currentResult: Int?, totalResults: Int?)
+    func webController(_ controller: WebController, didOpenAMPURL url: URL)
 }
 
 class WebViewController: UIViewController, WebController {
@@ -163,6 +164,11 @@ class WebViewController: UIViewController, WebController {
         }
     }
     
+    fileprivate func updateBackForwardState(webView: WKWebView) {
+        delegate?.webController(self, didUpdateCanGoBack: canGoBack)
+        delegate?.webController(self, didUpdateCanGoForward: canGoForward)
+    }
+    
     private func setupBlockLists() {
         ContentBlockerHelper.shared.getBlockLists { lists in
             self.reloadBlockers(lists)
@@ -220,10 +226,16 @@ class WebViewController: UIViewController, WebController {
             return
         }
         
+        if keyPath == #keyPath(WKWebView.url) {
+            if let url = browserView.url {
+                self.delegate?.webController(self, didOpenAMPURL: url)
+            }
+        }
+        
         switch path {
         case .URL:
             guard let url = browserView.url else { break }
-            delegate?.webControllerURLDidChange(self, url: url)
+            delegate?.webControllerURLDidChange(self)
         case .canGoBack:
             guard let canGoBack = change?[.newKey] as? Bool else { break }
             delegate?.webController(self, didUpdateCanGoBack: canGoBack)
@@ -256,6 +268,8 @@ extension WebViewController: WKNavigationDelegate {
     func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) {
         delegate?.webControllerDidStartNavigation(self)
         if case .on = trackingProtectionStatus { trackingInformation = TPPageStats() }
+        
+        updateBackForwardState(webView: webView)
     }
 
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
