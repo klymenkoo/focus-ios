@@ -1150,11 +1150,8 @@ extension BrowserViewController: SearchSuggestionsPromptViewDelegate {
         UserDefaults.standard.set(true, forKey: SearchSuggestionsPromptView.respondedToSearchSuggestionsPrompt)
         Settings.set(didEnable, forToggle: SettingsToggle.enableSearchSuggestions)
         overlayView.displaySearchSuggestionsPrompt(hide: true)
-        if didEnable {
-            overlayView.approvedSearchSuggestions()
-            if let urlbar = self.urlBar, let value = self.urlBar?.userInputText {
-                urlBar(urlbar, didEnterText: value)
-            }
+        if didEnable, let urlbar = self.urlBar, let value = self.urlBar?.userInputText {
+            urlBar(urlbar, didEnterText: value)
         }
     }
 }
